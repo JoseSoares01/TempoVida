@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempoVida Executive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="antialiased">
+    <div class="grain"></div>
+    
+    <svg width="0" height="0" class="absolute">
+        <defs>
+            <linearGradient id="lbiGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#6366f1;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+                <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:0.8" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Activity Selection Modal -->
+    <div id="activityModal" class="activity-modal">
+        <div class="w-full max-w-5xl">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-display text-3xl mb-2">Escolher Atividade</h2>
+                    <p class="text-gray-400">Selecione onde deseja investir seu tempo agora</p>
+                </div>
+                <button onclick="closeActivityModal()" class="w-12 h-12 rounded-full border border-white/10 hover:bg-white/5 flex items-center justify-center transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="activity-grid">
+                <div class="activity-option" onclick="selectActivity('familia')">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 text-blue-400 text-2xl">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Família</div>
+                    <div class="text-sm text-gray-500 mb-3">Pais, irmãos, familiares</div>
+                    <div class="text-xs text-blue-400 font-mono">Meta: 2h/dia</div>
+                </div>
+
+                <div class="activity-option" onclick="selectActivity('parceiro')">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 text-amber-400 text-2xl">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Parceiro(a)</div>
+                    <div class="text-sm text-gray-500 mb-3">Maria • Qualidade juntos</div>
+                    <div class="text-xs text-amber-400 font-mono">Meta: 4h/dia</div>
+                </div>
+
+                <div class="activity-option" onclick="selectActivity('filhos')">
+                    <div class="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-4 text-orange-400 text-2xl">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Filhos</div>
+                    <div class="text-sm text-gray-500 mb-3">João (3a) • Cuidado</div>
+                    <div class="text-xs text-orange-400 font-mono">Meta: 3h/dia</div>
+                </div>
+
+                <div class="activity-option" onclick="selectActivity('amigos')">
+                    <div class="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center mx-auto mb-4 text-teal-400 text-2xl">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Amigos</div>
+                    <div class="text-sm text-gray-500 mb-3">Socialização e lazer</div>
+                    <div class="text-xs text-teal-400 font-mono">Meta: 1.5h/dia</div>
+                </div>
+
+                <div class="activity-option" onclick="selectActivity('trabalho')">
+                    <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4 text-red-400 text-2xl">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Trabalho</div>
+                    <div class="text-sm text-gray-500 mb-3">Profissional, reuniões</div>
+                    <div class="text-xs text-red-400 font-mono">Meta: 3h/dia</div>
+                </div>
+
+                <div class="activity-option" onclick="selectActivity('sozinho')">
+                    <div class="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4 text-green-400 text-2xl">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="text-lg font-medium mb-1">Sozinho</div>
+                    <div class="text-sm text-gray-500 mb-3">Reflexão, descanso</div>
+                    <div class="text-xs text-green-400 font-mono">Meta: 6h/dia</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Focus Mode -->
+    <div id="focusMode" class="focus-mode">
+        <div class="text-center">
+            <div class="text-caption mb-8 tracking-widest">FOCO ATIVO</div>
+            <div class="focus-timer font-mono mb-4" id="focusTimerDisplay">00:00:00</div>
+            <div class="text-xl text-gray-400 mb-12" id="focusActivityName">TRABALHO</div>
+            <div class="flex gap-6 justify-center">
+                <button onclick="togglePause()" class="px-8 py-3 bg-white/5 rounded-full hover:bg-white/10 transition text-sm tracking-wide" id="focusPauseBtn">
+                    PAUSAR
+                </button>
+                <button onclick="stopActivity()" class="px-8 py-3 border border-white/10 rounded-full hover:bg-white/5 transition text-sm tracking-wide">
+                    ENCERRAR
+                </button>
+                <button onclick="toggleFocusMode()" class="px-8 py-3 border border-white/10 rounded-full hover:bg-white/5 transition text-sm tracking-wide">
+                    SAIR DO FOCO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10">
+                    <i class="fas fa-clock text-blue-400/80 text-sm"></i>
+                </div>
+                <span class="text-lg font-semibold tracking-tight">TempoVida</span>
+                <span class="text-[10px] uppercase tracking-widest text-gray-500 ml-2 border-l border-white/10 pl-3">Executive</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <button onclick="toggleFocusMode()" class="text-xs uppercase tracking-widest text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <i class="fas fa-compress-alt"></i> Focus
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-6 max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <div class="mb-12">
+            <h1 class="text-display mb-2">Dashboard</h1>
+            <p class="text-gray-400 max-w-xl">Gestão estratégica do tempo baseada em dados comportamentais.</p>
+        </div>
+
+        <!-- LBI Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-1 flex flex-col items-center justify-center card-premium rounded-3xl p-8">
+                <div class="lbi-container mb-6">
+                    <svg class="lbi-ring w-full h-full" viewBox="0 0 260 260">
+                        <circle class="lbi-ring-bg" cx="130" cy="130" r="120"/>
+                        <circle class="lbi-ring-progress" id="lbiRing" cx="130" cy="130" r="120"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div class="text-caption mb-1">LBI™</div>
+                        <div class="text-6xl font-light tracking-tighter" id="lbiScore">84</div>
+                        <div class="text-sm text-blue-400/80 mt-1 font-medium">Excelente</div>
+                    </div>
+                </div>
+                <p class="text-gray-400 text-sm text-center">Seu equilíbrio está 12% superior à média semanal.</p>
+            </div>
+
+            <div class="lg:col-span-2 grid grid-cols-2 gap-4">
+                <div class="card-premium rounded-2xl p-6">
+                    <div class="text-caption mb-4">Tempo Registrado</div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-light tracking-tight" id="totalHours">6</span>
+                        <span class="text-lg text-gray-500">h</span>
+                        <span class="text-4xl font-light tracking-tight" id="totalMinutes">42</span>
+                        <span class="text-lg text-gray-500">m</span>
+                    </div>
+                    <div class="mt-4 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[42%] rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="card-premium rounded-2xl p-6">
+                    <div class="text-caption mb-4">Status Atual</div>
+                    <div id="statusContainer" class="status-indicator idle">
+                        <span class="status-dot"></span>
+                        <span id="statusText">Aguardando</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-3">Selecione uma atividade para começar</p>
+                </div>
+
+                <div class="card-premium rounded-2xl p-6 col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-caption">Missão do Dia</div>
+                        <button onclick="completeMission()" id="missionBtn" class="text-xs uppercase tracking-widest text-blue-400 hover:text-blue-300 transition">
+                            Concluir →
+                        </button>
+                    </div>
+                    <p class="text-lg font-light leading-relaxed">Passe 30 minutos 100% presente com seu parceiro.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMER SECTION - MAIN CONTROLS -->
+        <div class="card-premium rounded-3xl p-12 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col items-center text-center">
+                
+                <!-- Status Badge -->
+                <div class="mb-6">
+                    <span id="timerStatus" class="status-indicator idle">
+                        <span class="status-dot"></span>
+                        <span>Pronto para iniciar</span>
+                    </span>
+                </div>
+
+                <!-- Activity Name -->
+                <div class="text-caption mb-6 tracking-widest text-lg" id="currentActivityName">SELECIONE UMA ATIVIDADE</div>
+                
+                <!-- Timer Display -->
+                <div class="relative mb-10">
+                    <svg class="w-80 h-80 transform -rotate-90" viewBox="0 0 200 200">
+                        <circle class="timer-ring" cx="100" cy="100" r="98"/>
+                        <circle class="timer-progress" id="timerCircle" cx="100" cy="100" r="98" 
+                                stroke-dasharray="616" stroke-dashoffset="616"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="timer-display" id="mainTimer">00:00:00</div>
+                    </div>
+                </div>
+
+                <!-- CONTROL BUTTONS -->
+                <div class="flex flex-wrap gap-4 justify-center items-center">
+                    
+                    <!-- Start Quick -->
+                    <button onclick="quickStart()" id="btnQuickStart" class="control-btn quick-start-btn px-6 py-4 rounded-full flex items-center gap-3 text-sm tracking-wide">
+                        <i class="fas fa-bolt"></i>
+                        <span>INÍCIO RÁPIDO</span>
+                    </button>
+
+                    <!-- Choose Activity -->
+                    <button onclick="openActivityModal()" id="btnChoose" class="control-btn primary px-6 py-4 rounded-full flex items-center gap-3 text-sm tracking-wide">
+                        <i class="fas fa-list"></i>
+                        <span>ESCOLHER ATIVIDADE</span>
+                    </button>
+
+                    <!-- Pause/Resume (Hidden initially) -->
+                    <button onclick="togglePause()" id="btnPause" class="control-btn warning px-6 py-4 rounded-full flex items-center gap-3 text-sm tracking-wide hidden">
+                        <i class="fas fa-pause"></i>
+                        <span>PAUSAR</span>
+                    </button>
+
+                    <!-- Resume (Hidden initially) -->
+                    <button onclick="togglePause()" id="btnResume" class="control-btn primary px-6 py-4 rounded-full flex items-center gap-3 text-sm tracking-wide hidden">
+                        <i class="fas fa-play"></i>
+                        <span>CONTINUAR</span>
+                    </button>
+
+                    <!-- Stop (Hidden initially) -->
+                    <button onclick="stopActivity()" id="btnStop" class="control-btn danger px-6 py-4 rounded-full flex items-center gap-3 text-sm tracking-wide hidden">
+                        <i class="fas fa-stop"></i>
+                        <span>ENCERRAR</span>
+                    </button>
+
+                </div>
+
+                <!-- Keyboard shortcuts hint -->
+                <div class="mt-8 text-xs text-gray-600 tracking-wide">
+                    ATALHOS: <span class="text-gray-400">ESPAÇO</span> Pausar/Continuar • <span class="text-gray-400">ESC</span> Encerrar
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-12">
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('familia')" data-category="familia">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                        <i class="fas fa-home text-blue-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-familia">1.2</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Família</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500/60 w-[35%] rounded-full" id="bar-familia"></div>
+                </div>
+            </div>
+
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('parceiro')" data-category="parceiro">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                        <i class="fas fa-heart text-amber-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-parceiro">2.4</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Parceiro</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500/60 w-[60%] rounded-full" id="bar-parceiro"></div>
+                </div>
+            </div>
+
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('filhos')" data-category="filhos">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+                        <i class="fas fa-child text-orange-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-filhos">3.1</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Filhos</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-orange-500/60 w-[85%] rounded-full" id="bar-filhos"></div>
+                </div>
+            </div>
+
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('amigos')" data-category="amigos">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center border border-teal-500/20">
+                        <i class="fas fa-users text-teal-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-amigos">0.3</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Amigos</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-teal-500/60 w-[20%] rounded-full" id="bar-amigos"></div>
+                </div>
+            </div>
+
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('trabalho')" data-category="trabalho">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                        <i class="fas fa-briefcase text-red-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-trabalho">4.2</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Trabalho</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-red-500/60 w-[70%] rounded-full" id="bar-trabalho"></div>
+                </div>
+            </div>
+
+            <div class="category-card rounded-2xl p-5 cursor-pointer" onclick="startActivity('sozinho')" data-category="sozinho">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20">
+                        <i class="fas fa-user text-green-400/70 text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-light" id="time-sozinho">2.8</span>
+                </div>
+                <div class="text-sm font-medium mb-1">Sozinho</div>
+                <div class="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-green-500/60 w-[45%] rounded-full" id="bar-sozinho"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card-premium rounded-2xl p-6">
+            <h3 class="text-lg font-semibold mb-6">Cronograma do Dia</h3>
+            <div class="space-y-0" id="timelineContainer">
+                <div class="text-center text-gray-500 py-8" id="emptyTimeline">Nenhuma atividade registrada hoje</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
